@@ -29,6 +29,8 @@ training_args = TrainingArguments(
     eval_steps=2000,
     logging_dir='exp/TNEWS/logs',            # directory for storing logs
     evaluation_strategy='steps',
+    load_best_model_at_end=True,
+    metric_for_best_model="marco_f1_score",
     #prediction_loss_only=True,
     do_eval=True,
 )

@@ -6,20 +6,15 @@ logging.basicConfig(level=logging.INFO, format='%(asctime)s %(filename)s[line:%(
 import os
 os.environ["CUDA_VISIBLE_DEVICES"] = "None"
 
-label_dict = {}
+label_dict = {"0":0, "1":1, "2":2}
 
-for i in range(17):
-    label_dict["10%d"%i] = i
-else:
-    label_dict["1%d"%i] = i
-train = Mydataset("data/OCEMOTION_train1128.csv", label_dict)
-eval = Mydataset("data/OCEMOTION_train1128.csv", label_dict)
+train = Mydataset("data/TNEWS_train1128.csv", label_dict)
+eval = Mydataset("data/TNEWS_train1128.csv", label_dict)
 
 
-label_dict = {0:"O", 1:"，", 2:"。", 3:"：",  4:"、"}
-model = BertForSequenceClassification.from_pretrained("bert-base-chinese")
+model = BertForSequenceClassification.from_pretrained("bert-base-chinese", num_labels=len(label_dict))
 training_args = TrainingArguments(
-    output_dir='exp/OCEMOTION/model',          # output directory
+    output_dir='exp/OCNLI/model',          # output directory
     num_train_epochs=25,              # total # of training epochs
     per_device_train_batch_size=2,  # batch size per device during training
     per_device_eval_batch_size=2,   # batch size for evaluation
@@ -27,8 +22,10 @@ training_args = TrainingArguments(
     weight_decay=0.01,               # strength of weight decay
     save_steps=20000,
     eval_steps=5,
-    logging_dir='exp/OCEMOTION/logs',            # directory for storing logs
+    logging_dir='exp/OCNLI/logs',            # directory for storing logs
     evaluation_strategy='steps',
+    load_best_model_at_end=True,
+    metric_for_best_model="marco_f1_score",
     #prediction_loss_only=True,
     do_eval=True,
 )
@@ -38,15 +35,17 @@ from sklearn.metrics import precision_recall_fscore_support, f1_score, confusion
 
 def compute_metrics(pred):
     labels = pred.label_ids
-    preds = pred.predictions
+    preds = pred.predictions.argmax(-1)
     labels = labels.flatten()
     preds = preds.flatten()
     marco_f1_score = f1_score(labels, preds, average='macro')
-    print(marco_f1_score)
-    print(f"{'confusion_matrix':*^80}")
-    print(confusion_matrix(labels, preds, ))
-    print(f"{'classification_report':*^80}")
-    print(classification_report(labels, preds, ))
+    logging.info(marco_f1_score)
+    logging.info(f"{'confusion_matrix':*^80}")
+    logging.info(confusion_matrix(labels, preds, ))
+    logging.info(f"{'classification_report':*^80}")
+    logging.info(classification_report(labels, preds, ))
+    res = {"marco_f1_score":marco_f1_score}
+    return res
 
 
 trainer = Trainer(
