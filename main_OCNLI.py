@@ -10,14 +10,14 @@ label_dict = {}
 
 for i in range(17):
     label_dict["10%d"%i] = i
-train = Mydataset("data/TNEWS_train1128.csv", label_dict)
-eval = Mydataset("data/TNEWS_train1128.csv", label_dict)
+train = Mydataset("data/OCEMOTION_train1128.csv", label_dict)
+eval = Mydataset("data/OCEMOTION_train1128.csv", label_dict)
 
 
 label_dict = {0:"O", 1:"，", 2:"。", 3:"：",  4:"、"}
 model = BertForSequenceClassification.from_pretrained("bert-base-chinese")
 training_args = TrainingArguments(
-    output_dir='exp/TNEWS/model',          # output directory
+    output_dir='exp/OCEMOTION/model',          # output directory
     num_train_epochs=25,              # total # of training epochs
     per_device_train_batch_size=2,  # batch size per device during training
     per_device_eval_batch_size=2,   # batch size for evaluation
@@ -25,7 +25,7 @@ training_args = TrainingArguments(
     weight_decay=0.01,               # strength of weight decay
     save_steps=20000,
     eval_steps=5,
-    logging_dir='exp/TNEWS/logs',            # directory for storing logs
+    logging_dir='exp/OCEMOTION/logs',            # directory for storing logs
     evaluation_strategy='steps',
     #prediction_loss_only=True,
     do_eval=True,

@@ -33,5 +33,5 @@ class Mydataset(torch.utils.data.Dataset):
         return sample
 
     def __len__(self):
-        assert len(self.label_seq_all) == len(self.input_seq_all)
-        return len(self.label_seq_all)
+        assert len(self.label_all) == len(self.input_seq_all)
+        return len(self.label_all)
