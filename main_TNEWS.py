@@ -10,11 +10,12 @@ label_dict = {}
 
 for i in range(17):
     label_dict["10%d"%i] = i
+else:
+    label_dict["1%d"%i] = i
 train = Mydataset("data/TNEWS_train1128.csv", label_dict)
 eval = Mydataset("data/TNEWS_train1128.csv", label_dict)
 
 
-label_dict = {0:"O", 1:"，", 2:"。", 3:"：",  4:"、"}
 model = BertForSequenceClassification.from_pretrained("bert-base-chinese")
 training_args = TrainingArguments(
     output_dir='exp/TNEWS/model',          # output directory
