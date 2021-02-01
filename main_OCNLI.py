@@ -1,4 +1,4 @@
-from dataset import Mydataset,data_collator
+from dataset import Mydataset,data_collator,OCNLI_dataset
 from transformers import *
 
 import logging
@@ -8,8 +8,8 @@ os.environ["CUDA_VISIBLE_DEVICES"] = "None"
 
 label_dict = {"0":0, "1":1, "2":2}
 
-train = Mydataset("data/TNEWS_train1128.csv", label_dict)
-eval = Mydataset("data/TNEWS_train1128.csv", label_dict)
+train = OCNLI_dataset("data/OCNLI_train1128.csv", label_dict)
+eval = OCNLI_dataset("data/OCNLI_train1128.csv", label_dict)
 
 
 model = BertForSequenceClassification.from_pretrained("bert-base-chinese", num_labels=len(label_dict))
