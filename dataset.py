@@ -23,7 +23,7 @@ class Mydataset(torch.utils.data.Dataset):
                 split_line = line.split("\t")
                 assert len(split_line)== 3
                 self.input_seq_all.append(split_line[1])
-                self.label_all.append(split_line[2])
+                self.label_all.append(split_line[2].strip())
                 line = f.readline()
 
     def __getitem__(self, idx):

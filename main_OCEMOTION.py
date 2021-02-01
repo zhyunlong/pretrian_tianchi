@@ -9,7 +9,10 @@ os.environ["CUDA_VISIBLE_DEVICES"] = "None"
 label_dict = {}
 
 for i in range(17):
-    label_dict["10%d"%i] = i
+    if i<10:
+        label_dict["10%d"%i] = i
+    else:
+        label_dict["1%d"%i] = i
 train = Mydataset("data/OCEMOTION_train1128.csv", label_dict)
 eval = Mydataset("data/OCEMOTION_train1128.csv", label_dict)
 
