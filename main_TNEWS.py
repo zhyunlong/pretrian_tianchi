@@ -17,7 +17,7 @@ train = Mydataset("data/TNEWS_train1128.csv", label_dict)
 eval = Mydataset("data/TNEWS_train1128.csv", label_dict)
 
 
-model = BertForSequenceClassification.from_pretrained("bert-base-chinese")
+model = BertForSequenceClassification.from_pretrained("bert-base-chinese", num_labels=len(label_dict))
 training_args = TrainingArguments(
     output_dir='exp/TNEWS/model',          # output directory
     num_train_epochs=25,              # total # of training epochs

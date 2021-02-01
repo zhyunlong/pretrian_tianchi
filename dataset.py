@@ -8,7 +8,9 @@ def data_collator(features):
     batch = {}
     input_ids = [sample["input_ids"] for sample in features]
     labels = [sample["labels"] for sample in features]
-    batch["input_ids"] = tokenizer(input_ids,  add_special_tokens=True, return_tensors="pt")["input_ids"]
+    out = tokenizer(input_ids,  add_special_tokens=True, padding=True, truncation=True, return_tensors="pt")
+    batch["input_ids"] = out["input_ids"]
+    batch["attention_mask"] = out["attention_mask"]
     batch["labels"] = torch.tensor(labels)
     return batch
 
