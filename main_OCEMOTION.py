@@ -4,7 +4,7 @@ from transformers import *
 import logging
 logging.basicConfig(level=logging.INFO, format='%(asctime)s %(filename)s[line:%(lineno)d] %(levelname)s %(message)s' )
 import os
-os.environ["CUDA_VISIBLE_DEVICES"] = "None"
+os.environ["CUDA_VISIBLE_DEVICES"] = "2"
 
 label_dict = {'sadness': 0, 'happiness': 1, 'disgust': 2, 'anger': 3, 'like': 4, 'surprise': 5, 'fear': 6}
 train = Mydataset("data/OCEMOTION_train1128.csv", label_dict)
@@ -14,13 +14,13 @@ eval = Mydataset("data/OCEMOTION_train1128.csv", label_dict)
 model = BertForSequenceClassification.from_pretrained("bert-base-chinese", num_labels=len(label_dict))
 training_args = TrainingArguments(
     output_dir='exp/OCEMOTION/model',          # output directory
-    num_train_epochs=25,              # total # of training epochs
-    per_device_train_batch_size=2,  # batch size per device during training
-    per_device_eval_batch_size=2,   # batch size for evaluation
+    num_train_epochs=15,              # total # of training epochs
+    per_device_train_batch_size=16,  # batch size per device during training
+    per_device_eval_batch_size=16,   # batch size for evaluation
     warmup_steps=500,                # number of warmup steps for learning rate scheduler
     weight_decay=0.01,               # strength of weight decay
-    save_steps=20000,
-    eval_steps=5,
+    save_steps=4000,
+    eval_steps=2000,
     logging_dir='exp/OCEMOTION/logs',            # directory for storing logs
     evaluation_strategy='steps',
     load_best_model_at_end=True,
