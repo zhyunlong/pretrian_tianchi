@@ -15,23 +15,30 @@ def data_collator(features):
     return batch
 
 class Mydataset(torch.utils.data.Dataset):
-    def __init__(self, path, label_dict):
+    def __init__(self, path, label_dict, is_test=False):
         self.input_seq_all = []
         self.label_all = []
         self.label_dict = label_dict
+        self.is_test = is_test
         with open(path, "r", encoding="utf-8") as f:
             line = f.readline()
             while (line != ""):
                 split_line = line.split("\t")
-                assert len(split_line)== 3
+                #assert len(split_line)== 3
                 self.input_seq_all.append(split_line[1])
-                self.label_all.append(split_line[2].strip())
+                if is_test==False:
+                    self.label_all.append(split_line[2].strip())
+                else:
+                    self.label_all.append(-1)
                 line = f.readline()
 
     def __getitem__(self, idx):
         sample = dict()
         sample["input_seq"] = self.input_seq_all[idx]
-        sample["labels"] = self.label_dict[self.label_all[idx]]
+        if self.is_test:
+            sample["labels"] = self.label_all[idx]
+        else:
+            sample["labels"] = self.label_dict[self.label_all[idx]]
         return sample
 
     def __len__(self):
@@ -41,25 +48,32 @@ class Mydataset(torch.utils.data.Dataset):
 
 
 class OCNLI_dataset(torch.utils.data.Dataset):
-    def __init__(self, path, label_dict):
+    def __init__(self, path, label_dict, is_test=False):
         self.first_input_seq_all = []
         self.second_input_seq_all = []
         self.label_all = []
         self.label_dict = label_dict
+        self.is_test = is_test
         with open(path, "r", encoding="utf-8") as f:
             line = f.readline()
             while (line != ""):
                 split_line = line.split("\t")
-                assert len(split_line)== 4
+                #assert len(split_line)== 4
                 self.first_input_seq_all.append(split_line[1])
                 self.second_input_seq_all.append(split_line[2])
-                self.label_all.append(split_line[3].strip())
+                if is_test==False:
+                    self.label_all.append(split_line[3].strip())
+                else:
+                    self.label_all.append(-1)
                 line = f.readline()
 
     def __getitem__(self, idx):
         sample = dict()
         sample["input_seq"] = [self.first_input_seq_all[idx],self.second_input_seq_all[idx]]
-        sample["labels"] = self.label_dict[self.label_all[idx]]
+        if self.is_test:
+            sample["labels"] = self.label_all[idx]
+        else:
+            sample["labels"] = self.label_dict[self.label_all[idx]]
         return sample
 
     def __len__(self):
