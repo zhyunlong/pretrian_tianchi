@@ -15,11 +15,11 @@ for i in range(17):
         label_dict["10%d"%i] = i
     else:
         label_dict["1%d"%i] = i
-train = Mydataset("data/TNEWS_train1128.csv", label_dict)
-eval = Mydataset("data/TNEWS_train1128.csv", label_dict)
+train = Mydataset("data_split/TNEWS_train.csv", label_dict)
+eval = Mydataset("data_split/TNEWS_dev.csv", label_dict)
 
-model = BertForSequenceClassification.from_pretrained("exp/TNEWS/checkpoint-11000", num_labels=len(label_dict))
-#model = BertForSequenceClassification.from_pretrained("hfl/chinese-roberta-wwm-ext-large", num_labels=len(label_dict))
+#model = BertForSequenceClassification.from_pretrained("exp/TNEWS/checkpoint-11000", num_labels=len(label_dict))
+model = BertForSequenceClassification.from_pretrained("hfl/chinese-roberta-wwm-ext-large", num_labels=len(label_dict))
 training_args = TrainingArguments(
     output_dir='exp/TNEWS/model',          # output directory
     num_train_epochs=3,              # total # of training epochs
@@ -29,9 +29,9 @@ training_args = TrainingArguments(
     weight_decay=0.01,               # strength of weight decay
     save_total_limit=1,
     save_steps=1000,
-    #eval_steps=2000,
+    eval_steps=1000,
     logging_dir='exp/TNEWS/logs',            # directory for storing logs
-    #evaluation_strategy='steps',
+    evaluation_strategy='steps',
     #load_best_model_at_end=True,
     #metric_for_best_model="marco_f1_score",
     #prediction_loss_only=True,
