@@ -45,7 +45,8 @@ def fine_tune_stage():
             label_dict["1%d" % i] = i
     train = Mydataset("data_split/TNEWS_train.csv", label_dict)
     eval = Mydataset("data_split/TNEWS_dev.csv", label_dict)
-    model = BertClassification.from_pretrained("exp/TNEWS_pretrain/model/checkpoint-6000", num_labels=len(label_dict))
+    model = BertClassification("hfl/chinese-roberta-wwm-ext-large", num_labels=len(label_dict))
+    #model = BertForSequenceClassification.from_pretrained("exp/TNEWS_pretrain/model/checkpoint-6000", num_labels=len(label_dict))
     #model = BertForSequenceClassification.from_pretrained("hfl/chinese-roberta-wwm-ext-large", num_labels=len(label_dict))
     training_args = TrainingArguments(
         output_dir='exp/TNEWS/model',          # output directory
