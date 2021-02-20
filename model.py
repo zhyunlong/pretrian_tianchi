@@ -9,7 +9,7 @@ class BertClassification(nn.Module):
         self.hidden_size = 1024
         self.hidden_dropout_prob = 0.1
         self.num_labels = num_labels
-        self.bert_model = BertModel.from_pretrained(bert_pretrained)
+        self.bert = BertModel.from_pretrained(bert_pretrained)
         self.dropout = nn.Dropout(self.hidden_dropout_prob)
         self.classifier = nn.Linear(self.hidden_size, self.num_labels)
 
