@@ -6,21 +6,21 @@ import torch
 import logging
 
 def pretrain_stage():
-    pretrained_model = BertLMHeadModel().from_pretrained("hfl/chinese-roberta-wwm-ext-large")
+    pretrained_model = BertLMHeadModel.from_pretrained("hfl/chinese-roberta-wwm-ext-large")
     train = PretrainDataset("data_split/TNEWS_train.csv")
 
     training_args = TrainingArguments(
         output_dir='exp/TNEWS_pretrain/model',  # output directory
-        num_train_epochs=4,  # total # of training epochs
+        num_train_epochs=2,  # total # of training epochs
         per_device_train_batch_size=16,  # batch size per device during training
         per_device_eval_batch_size=16,  # batch size for evaluation
         warmup_steps=500,  # number of warmup steps for learning rate scheduler
         weight_decay=0.01,  # strength of weight decay
         save_total_limit=1,
         save_steps=1000,
-        eval_steps=1000,
+        #eval_steps=1000,
         logging_dir='exp/TNEWS_pretrain/logs',  # directory for storing logs
-        evaluation_strategy='steps',
+        #evaluation_strategy='steps',
         # load_best_model_at_end=True,
         # metric_for_best_model="marco_f1_score",
         prediction_loss_only=True,
@@ -44,8 +44,8 @@ def fine_tune_stage():
             label_dict["1%d" % i] = i
     train = Mydataset("data_split/TNEWS_train.csv", label_dict)
     eval = Mydataset("data_split/TNEWS_dev.csv", label_dict)
-    #model = BertForSequenceClassification.from_pretrained("exp/TNEWS/checkpoint-11000", num_labels=len(label_dict))
-    model = BertForSequenceClassification.from_pretrained("hfl/chinese-roberta-wwm-ext-large", num_labels=len(label_dict))
+    model = BertForSequenceClassification.from_pretrained("exp/TNEWS_pretrain/model/checkpoint-6000", num_labels=len(label_dict))
+    #model = BertForSequenceClassification.from_pretrained("hfl/chinese-roberta-wwm-ext-large", num_labels=len(label_dict))
     training_args = TrainingArguments(
         output_dir='exp/TNEWS/model',          # output directory
         num_train_epochs=4,              # total # of training epochs
@@ -56,6 +56,7 @@ def fine_tune_stage():
         save_total_limit=1,
         save_steps=1000,
         eval_steps=1000,
+        learning_rate=1e-5,
         logging_dir='exp/TNEWS/logs',            # directory for storing logs
         evaluation_strategy='steps',
         #load_best_model_at_end=True,
@@ -75,10 +76,10 @@ def fine_tune_stage():
         preds = preds.flatten()
         marco_f1_score = f1_score(labels, preds, average='macro')
         logging.info(marco_f1_score)
-        logging.info(f"{'confusion_matrix':*^80}")
-        logging.info(confusion_matrix(labels, preds, ))
-        logging.info(f"{'classification_report':*^80}")
-        logging.info(classification_report(labels, preds, ))
+        #logging.info(f"{'confusion_matrix':*^80}")
+        #logging.info(confusion_matrix(labels, preds, ))
+        #logging.info(f"{'classification_report':*^80}")
+        #logging.info(classification_report(labels, preds, ))
         res = {"marco_f1_score":marco_f1_score}
         return res
 
@@ -96,9 +97,9 @@ def fine_tune_stage():
 if __name__ == '__main__':
     logging.basicConfig(level=logging.INFO,
                         format='%(asctime)s %(filename)s[line:%(lineno)d] %(levelname)s %(message)s')
-    os.environ["CUDA_VISIBLE_DEVICES"] = "3"
+    os.environ["CUDA_VISIBLE_DEVICES"] = "7"
     logging.info(torch.cuda.is_available())
-    pretrain_stage()
+    #pretrain_stage()
     fine_tune_stage()
 
 
