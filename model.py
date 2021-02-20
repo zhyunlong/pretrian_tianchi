@@ -11,6 +11,7 @@ class BertClassification(nn.Module):
         self.num_labels = num_labels
         self.bert = BertModel.from_pretrained(bert_pretrained)
         self.dropout = nn.Dropout(self.hidden_dropout_prob)
+        #self.bilstm = nn.LSTM(self.hidden_size, 128, bidirectional=True, batch_first=True)
         self.classifier = nn.Linear(self.hidden_size, self.num_labels)
 
     def forward(
@@ -43,7 +44,9 @@ class BertClassification(nn.Module):
             output_hidden_states=output_hidden_states,
         )
 
-        pooled_output = outputs[1]
+        #pooled_output = outputs[1]
+        hidden_states = outputs[1]
+        pooled_output = hidden_states.mean(-2)
 
         pooled_output = self.dropout(pooled_output)
         logits = self.classifier(pooled_output)
