@@ -109,7 +109,7 @@ def fine_tune_stage_fix():
             label_dict["1%d" % i] = i
     train = Mydataset("data_split/TNEWS_train.csv", label_dict)
     eval = Mydataset("data_split/TNEWS_dev.csv", label_dict)
-    model = BertClassification("exp/TNEWS/model/checkpoint-10000", num_labels=len(label_dict), freeze_bert=True)
+    model = BertClassification("exp/TNEWS/model/checkpoint-13000", num_labels=len(label_dict), freeze_bert=True)
     for name, param in model.named_parameters():
         if param.requires_grad:
             logging.info(name)
