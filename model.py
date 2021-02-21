@@ -50,7 +50,9 @@ class BertClassification(nn.Module):
         #pooled_output = hidden_states.mean(-2)
         #pooled_output = self.dropout(pooled_output)
         lstm_hidden_states, _ = self.bilstm(hidden_states)
-        logits = self.classifier(lstm_hidden_states)
+        lstm_hidden_states = self.dropout(lstm_hidden_states)
+        pooled_output = lstm_hidden_states.mean(-2)
+        logits = self.classifier(pooled_output)
 
         loss = None
         if labels is not None:
