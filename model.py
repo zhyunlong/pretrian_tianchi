@@ -4,13 +4,16 @@ from torch.nn import CrossEntropyLoss, MSELoss
 from transformers import BertModel
 
 class BertClassification(nn.Module):
-    def __init__(self, bert_pretrained, num_labels):
+    def __init__(self, bert_pretrained, num_labels, freeze_bert=False):
         super(BertClassification, self).__init__()
         self.hidden_size = 1024
         self.lstm_hidden_size = 128
         self.hidden_dropout_prob = 0.1
         self.num_labels = num_labels
         self.bert = BertModel.from_pretrained(bert_pretrained)
+        if freeze_bert:
+            for p in self.bert.parameters():
+                p.requires_grad = False
         self.dropout = nn.Dropout(self.hidden_dropout_prob)
         self.bilstm = nn.LSTM(self.hidden_size, self.lstm_hidden_size, bidirectional=True, batch_first=True)
         self.classifier = nn.Linear(self.lstm_hidden_size*2, self.num_labels)
@@ -33,7 +36,6 @@ class BertClassification(nn.Module):
             config.num_labels - 1]`. If :obj:`config.num_labels == 1` a regression loss is computed (Mean-Square loss),
             If :obj:`config.num_labels > 1` a classification loss is computed (Cross-Entropy).
         """
-
         outputs = self.bert(
             input_ids,
             attention_mask=attention_mask,
