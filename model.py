@@ -41,11 +41,11 @@ class BertClassification(nn.Module):
             head_mask=head_mask,
             inputs_embeds=inputs_embeds,
             output_attentions=output_attentions,
-            output_hidden_states=True,
+            output_hidden_states=output_hidden_states,
         )
 
         #pooled_output = outputs[1]
-        hidden_states = outputs[2]
+        hidden_states = outputs[0]
         pooled_output = hidden_states.mean(-2)
 
         pooled_output = self.dropout(pooled_output)
