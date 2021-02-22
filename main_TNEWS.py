@@ -53,7 +53,7 @@ def fine_tune_stage():
     #model = BertForSequenceClassification.from_pretrained("hfl/chinese-roberta-wwm-ext-large", num_labels=len(label_dict))
     training_args = TrainingArguments(
         output_dir='exp/TNEWS/model',          # output directory
-        num_train_epochs=4,              # total # of training epochs
+        num_train_epochs=1,              # total # of training epochs
         per_device_train_batch_size=16,  # batch size per device during training
         per_device_eval_batch_size=16,   # batch size for evaluation
         warmup_steps=500,                # number of warmup steps for learning rate scheduler
@@ -109,7 +109,8 @@ def fine_tune_stage_fix():
             label_dict["1%d" % i] = i
     train = Mydataset("data_split/TNEWS_train.csv", label_dict)
     eval = Mydataset("data_split/TNEWS_dev.csv", label_dict)
-    model = BertClassification("exp/TNEWS/model/checkpoint-13000", num_labels=len(label_dict), freeze_bert=True)
+    model = BertClassification("exp/TNEWS/model/checkpoint-3000", num_labels=len(label_dict), freeze_bert=True)
+    #model = BertClassification("hfl/chinese-roberta-wwm-ext-large", num_labels=len(label_dict), freeze_bert=True)
     for name, param in model.named_parameters():
         if param.requires_grad:
             logging.info(name)
@@ -124,7 +125,7 @@ def fine_tune_stage_fix():
         save_total_limit=1,
         save_steps=1000,
         eval_steps=1000,
-        learning_rate=1e-5,
+        learning_rate=1e-2,
         logging_dir='exp/TNEWS_fix/logs',            # directory for storing logs
         evaluation_strategy='steps',
         #load_best_model_at_end=True,
@@ -132,7 +133,7 @@ def fine_tune_stage_fix():
         #prediction_loss_only=True,
         do_eval=False,
     )
-    #logging.info(model)
+    logging.info(model)
 
     from sklearn.metrics import precision_recall_fscore_support, f1_score, confusion_matrix,classification_report
 
@@ -146,8 +147,8 @@ def fine_tune_stage_fix():
         logging.info(marco_f1_score)
         #logging.info(f"{'confusion_matrix':*^80}")
         #logging.info(confusion_matrix(labels, preds, ))
-        #logging.info(f"{'classification_report':*^80}")
-        #logging.info(classification_report(labels, preds, ))
+        logging.info(f"{'classification_report':*^80}")
+        logging.info(classification_report(labels, preds, ))
         res = {"marco_f1_score":marco_f1_score}
         return res
 
@@ -168,6 +169,7 @@ if __name__ == '__main__':
     os.environ["CUDA_VISIBLE_DEVICES"] = "7"
     logging.info(torch.cuda.is_available())
     #pretrain_stage()
+    #fine_tune_stage()
     fine_tune_stage_fix()
 
 
