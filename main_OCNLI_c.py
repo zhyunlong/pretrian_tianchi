@@ -1,4 +1,4 @@
-from dataset import Mydataset,data_collator
+from dataset import Mydataset,data_collator,OCNLI_dataset
 from dataset_for_pretrain import PretrainDataset, pretrain_data_collator
 from transformers import *
 import os
@@ -9,12 +9,12 @@ from utilst import *
 
 
 def fine_tune_stage_1():
-    label_dict = get_TNEWS_label_dict()
-    train = Mydataset("data_split/TNEWS_train.csv", label_dict)
-    eval = Mydataset("data_split/TNEWS_dev.csv", label_dict)
+    label_dict = get_OCNLI_label_dict()
+    train = OCNLI_dataset("data_split/OCNLI_train.csv", label_dict)
+    eval = OCNLI_dataset("data_split/OCNLI_dev.csv", label_dict)
     model = BertClassification.from_pretrained("hfl/chinese-roberta-wwm-ext-large", num_labels=len(label_dict))
     training_args = TrainingArguments(
-        output_dir='exp/TNEWS_stage1/model',          # output directory
+        output_dir='exp/OCNLI_stage1/model',          # output directory
         num_train_epochs=5,              # total # of training epochs
         per_device_train_batch_size=16,  # batch size per device during training
         per_device_eval_batch_size=16,   # batch size for evaluation
@@ -39,13 +39,12 @@ def fine_tune_stage_1():
         callbacks=[EarlyStoppingCallback(early_stopping_patience=3)],
     )
     trainer.train()
-    logging.info(trainer.best_metrice)
     return trainer.model
 
 def fine_tune_stage_2(model):
     label_dict = get_OCNLI_label_dict()
-    train = Mydataset("data_split/OCNLI_dev.csv", label_dict)
-    eval = Mydataset("data_split/OCNLI_train_small.csv", label_dict)
+    train = OCNLI_dataset("data_split/OCNLI_dev.csv", label_dict)
+    eval = OCNLI_dataset("data_split/OCNLI_train_small.csv", label_dict)
     training_args = TrainingArguments(
         output_dir='exp/OCNLI/model',          # output directory
         num_train_epochs=5,              # total # of training epochs

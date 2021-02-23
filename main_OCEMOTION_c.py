@@ -9,7 +9,7 @@ from utilst import *
 
 
 def fine_tune_stage_1():
-    label_dict = get_TNEWS_label_dict()
+    label_dict = get_OCEMOTION_label_dict()
     train = Mydataset("data_split/OCEMOTION_train.csv", label_dict)
     eval = Mydataset("data_split/OCEMOTION_dev.csv", label_dict)
     model = BertClassification.from_pretrained("hfl/chinese-roberta-wwm-ext-large", num_labels=len(label_dict))
