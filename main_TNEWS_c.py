@@ -39,14 +39,12 @@ def fine_tune_stage_1():
         callbacks=[EarlyStoppingCallback(early_stopping_patience=3)],
     )
     trainer.train()
+    return trainer.model
 
-
-def fine_tune_stage_2():
+def fine_tune_stage_2(model):
     label_dict = get_TNEWS_label_dict()
     train = Mydataset("data_split/TNEWS_dev.csv", label_dict)
-    eval = Mydataset("data_split/TNEWS_dev.csv", label_dict)
-    checkpoint_dir = get_newest_checkpoit("TNEWS_stage1")
-    model = BertClassification.from_pretrained(checkpoint_dir, num_labels=len(label_dict))
+    eval = Mydataset("data_split/TNEWS_train_small.csv", label_dict)
     training_args = TrainingArguments(
         output_dir='exp/TNEWS/model',          # output directory
         num_train_epochs=4,              # total # of training epochs
@@ -56,7 +54,7 @@ def fine_tune_stage_2():
         weight_decay=0.01,               # strength of weight decay
         save_total_limit=2,
         eval_steps=1000,
-        learning_rate=1e-2,
+        learning_rate=1e-5,
         logging_dir='exp/TNEWS/logs',            # directory for storing logs
         evaluation_strategy='steps',
         load_best_model_at_end=True,
@@ -73,7 +71,34 @@ def fine_tune_stage_2():
         compute_metrics=compute_metrics,
         callbacks=[EarlyStoppingCallback(early_stopping_patience=3)],
     )
-    trainer.train(checkpoint_dir)
+    trainer.train()
+    return trainer.model
+
+
+def inference(model):
+    import json
+    index = 0
+    task_name = "TNEWS"
+    task_label_dict = get_TNEWS_label_dict()
+    file = open("%s_predict.json" % task_name.lower(), "w+")
+    test_dataset = Mydataset("/tcdata/%s_test_B.csv" % task_name.lower(), task_label_dict, is_test=True)
+    dataloader = torch.utils.data.DataLoader(test_dataset, batch_size=16, collate_fn=data_collator)
+    device = torch.device("cuda")
+    model.to(device)
+    model.eval()
+    inverse_label_dict = {v: k for k, v in task_label_dict[task_name].items()}
+    for batch in dataloader:
+        logits = model(batch["input_ids"].to(device), batch["attention_mask"].to(device)).logits
+        predict_label = logits.argmax(-1)
+        labels = batch["labels"].flatten().cpu().numpy()
+        predict_label = predict_label.flatten().cpu().numpy()
+        for i in range(labels.shape[0]):
+            json.dump({"id": int(index), "label": inverse_label_dict[int(predict_label[i])]}, file)
+            file.write("\n")
+            index += 1
+    print("task  %s complete " % task_name)
+    file.close()
+
 
 if __name__ == '__main__':
     import argparse
@@ -86,7 +111,9 @@ if __name__ == '__main__':
     # parser.add_argument('--pretrian_model', default='hfl/chinese-roberta-wwm-ext-large')
     # args = parser.parse_args()
     # pretrian_model = args.pretrian_model
-    fine_tune_stage_1()
-    fine_tune_stage_2()
+    model = fine_tune_stage_1()
+    model = fine_tune_stage_2(model)
+    inference(model)
+
 
 
