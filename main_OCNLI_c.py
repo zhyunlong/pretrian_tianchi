@@ -23,7 +23,7 @@ def fine_tune_stage_1():
         save_total_limit=2,
         eval_steps=1000,
         learning_rate=1e-5,
-        logging_dir='exp/TNEWS_stages1/logs',            # directory for storing logs
+        logging_dir='exp/OCNLI_stages1/logs',            # directory for storing logs
         evaluation_strategy='steps',
         load_best_model_at_end=True,
         metric_for_best_model="marco_f1_score",
@@ -39,23 +39,24 @@ def fine_tune_stage_1():
         callbacks=[EarlyStoppingCallback(early_stopping_patience=3)],
     )
     trainer.train()
+    logging.info(trainer.best_metrice)
     return trainer.model
 
 def fine_tune_stage_2(model):
-    label_dict = get_TNEWS_label_dict()
-    train = Mydataset("data_split/TNEWS_dev.csv", label_dict)
-    eval = Mydataset("data_split/TNEWS_train_small.csv", label_dict)
+    label_dict = get_OCNLI_label_dict()
+    train = Mydataset("data_split/OCNLI_dev.csv", label_dict)
+    eval = Mydataset("data_split/OCNLI_train_small.csv", label_dict)
     training_args = TrainingArguments(
-        output_dir='exp/TNEWS/model',          # output directory
+        output_dir='exp/OCNLI/model',          # output directory
         num_train_epochs=5,              # total # of training epochs
         per_device_train_batch_size=16,  # batch size per device during training
         per_device_eval_batch_size=16,   # batch size for evaluation
-        warmup_steps=500,                # number of warmup steps for learning rate scheduler
+        warmup_steps=200,                # number of warmup steps for learning rate scheduler
         weight_decay=0.01,               # strength of weight decay
         save_total_limit=2,
-        eval_steps=200,
+        eval_steps=1000,
         learning_rate=1e-5,
-        logging_dir='exp/TNEWS/logs',            # directory for storing logs
+        logging_dir='exp/OCNLI/logs',            # directory for storing logs
         evaluation_strategy='steps',
         load_best_model_at_end=True,
         metric_for_best_model="marco_f1_score",
@@ -78,8 +79,8 @@ def fine_tune_stage_2(model):
 def inference(model):
     import json
     index = 0
-    task_name = "TNEWS"
-    task_label_dict = get_TNEWS_label_dict()
+    task_name = "OCNLI"
+    task_label_dict = get_OCNLI_label_dict()
     file = open("%s_predict.json" % task_name.lower(), "w+")
     test_dataset = Mydataset("/tcdata/%s_test_B.csv" % task_name.lower(), task_label_dict, is_test=True)
     dataloader = torch.utils.data.DataLoader(test_dataset, batch_size=16, collate_fn=data_collator)
