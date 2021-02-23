@@ -21,7 +21,7 @@ def fine_tune_stage_1():
         warmup_steps=500,                # number of warmup steps for learning rate scheduler
         weight_decay=0.01,               # strength of weight decay
         save_total_limit=2,
-        eval_steps=1,
+        eval_steps=1000,
         learning_rate=1e-5,
         logging_dir='exp/TNEWS_stages1/logs',            # directory for storing logs
         evaluation_strategy='steps',
